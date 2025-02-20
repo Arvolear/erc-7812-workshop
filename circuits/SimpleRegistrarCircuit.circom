@@ -1,4 +1,4 @@
-// LICENSE: CC0-1.0
+// LICENSE: MIT
 pragma circom 2.1.9;
 
 include "@rarimo/evidence-registry/circuits/EvidenceRegistrySMT.circom";

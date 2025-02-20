@@ -1,0 +1,39 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.20;
+
+import {EvidenceRegistry} from "@rarimo/evidence-registry/contracts/EvidenceRegistry.sol";
+import {EvidenceDB} from "@rarimo/evidence-registry/contracts/EvidenceDB.sol";
+
+import {VerifierHelper} from "@solarity/solidity-lib/libs/zkp/snarkjs/VerifierHelper.sol";
+
+contract SimpleRegistrar {
+    using VerifierHelper for address;
+
+    EvidenceRegistry public registry;
+    EvidenceDB public db;
+    address public verifier;
+
+    constructor(EvidenceRegistry registry_, address verifier_) {
+        registry = registry_;
+        verifier = verifier_;
+
+        db = EvidenceDB(registry_.getEvidenceDB());
+    }
+
+    function addHash(bytes32 myHash_) external {
+        registry.addStatement(myHash_, myHash_);
+    }
+
+    function verifyPreimage(
+        VerifierHelper.ProofPoints memory points_,
+        bytes32 registryRoot_
+    ) external view {
+        require(registry.getRootTimestamp(registryRoot_) != 0, "SimpleRegistrar: invalid root");
+
+        uint256[] memory pubSignals_ = new uint256[](1);
+
+        pubSignals_[0] = uint256(registryRoot_);
+
+        require(verifier.verifyProof(pubSignals_, points_), "SimpleRegistrar: invalid proof");
+    }
+}

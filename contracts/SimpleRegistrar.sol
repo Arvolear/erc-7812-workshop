@@ -2,7 +2,6 @@
 pragma solidity ^0.8.20;
 
 import {EvidenceRegistry} from "@rarimo/evidence-registry/contracts/EvidenceRegistry.sol";
-import {EvidenceDB} from "@rarimo/evidence-registry/contracts/EvidenceDB.sol";
 
 import {VerifierHelper} from "@solarity/solidity-lib/libs/zkp/snarkjs/VerifierHelper.sol";
 
@@ -10,14 +9,11 @@ contract SimpleRegistrar {
     using VerifierHelper for address;
 
     EvidenceRegistry public registry;
-    EvidenceDB public db;
     address public verifier;
 
     constructor(EvidenceRegistry registry_, address verifier_) {
         registry = registry_;
         verifier = verifier_;
-
-        db = EvidenceDB(registry_.getEvidenceDB());
     }
 
     function addHash(bytes32 myHash_) external {

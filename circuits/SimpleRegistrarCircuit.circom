@@ -5,8 +5,9 @@ include "@rarimo/evidence-registry/circuits/EvidenceRegistrySMT.circom";
 
 template SimpleRegistrarCircuit(levels) {
     signal input root;
-
     signal input registrar;
+    signal input auth;
+
     signal input preimage;
     signal input siblings[levels];
     
@@ -31,4 +32,4 @@ template SimpleRegistrarCircuit(levels) {
     registry.root <== root;
 }
 
-component main{public [root]} = SimpleRegistrarCircuit(80);
+component main{public [root, registrar, auth]} = SimpleRegistrarCircuit(80);

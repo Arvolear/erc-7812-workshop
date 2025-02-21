@@ -26,15 +26,18 @@ describe("SimpleRegistrar", () => {
 
     const circuit = await zkit.getCircuit("SimpleRegistrarCircuit");
 
+    const signer = (await ethers.getSigners())[0].address;
+
     const proof = await circuit.generateProof({
       root: BigInt(smtProof.root),
       registrar: BigInt(await registrar.getAddress()),
+      auth: BigInt(signer),
       preimage: secret,
       siblings: smtProof.siblings.map((e) => BigInt(e)),
     });
 
     const calldata = await circuit.generateCalldata(proof);
 
-    await registrar.verifyPreimage({ a: calldata[0], b: calldata[1], c: calldata[2] }, smtProof.root);
+    await registrar.verifyPreimage({ a: calldata[0], b: calldata[1], c: calldata[2] }, smtProof.root, signer);
   });
 });

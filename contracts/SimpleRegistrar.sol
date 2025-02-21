@@ -22,13 +22,16 @@ contract SimpleRegistrar {
 
     function verifyPreimage(
         VerifierHelper.ProofPoints memory points_,
-        bytes32 registryRoot_
+        bytes32 registryRoot_,
+        address auth_
     ) external view {
         require(registry.getRootTimestamp(registryRoot_) != 0, "SimpleRegistrar: invalid root");
 
-        uint256[] memory pubSignals_ = new uint256[](1);
+        uint256[] memory pubSignals_ = new uint256[](3);
 
         pubSignals_[0] = uint256(registryRoot_);
+        pubSignals_[1] = uint256(uint160(address(this)));
+        pubSignals_[2] = uint256(uint160(auth_));
 
         require(verifier.verifyProof(pubSignals_, points_), "SimpleRegistrar: invalid proof");
     }

@@ -31,13 +31,13 @@ contract SimpleRegistrarCircuitGroth16Verifier {
     uint256 public constant GAMMA_Y2 =
         8495653923123431417604973247489272438418190587263600148770280649306958101930;
     uint256 public constant DELTA_X1 =
-        3332064830183691829730446792867364768974854272640695614907761557345153911637;
+        14677195985699434411643697190424058230664372657821749916640056353704447887867;
     uint256 public constant DELTA_X2 =
-        993653425545098929107242162858887076579902354943954415411644186088671424635;
+        2375184566418972801138143325293281768263441635541731636741794316088519819564;
     uint256 public constant DELTA_Y1 =
-        8553595407200166549734215670934824280087131612127792214405090992535325770983;
+        5530738109572989861045465519423012831296367838403850935729634742436860371812;
     uint256 public constant DELTA_Y2 =
-        13917144871864338158934787424328220188114601077343537355062848743615741240875;
+        9038683162662986021804275606653724603667629827349796256327840964444377755601;
 
     uint256 public constant IC0_X =
         8433771686332445050021204203309758098702578339869805468389912351335487930979;
@@ -47,6 +47,14 @@ contract SimpleRegistrarCircuitGroth16Verifier {
         6717249144270893327501947962519966694117545644960482011626927309893220304411;
     uint256 public constant IC1_Y =
         9660953104577599820027848853788312848519813414371009655076675342049878576672;
+    uint256 public constant IC2_X =
+        2141808265085417538562050565280070160292513476224548770994745206596370458285;
+    uint256 public constant IC2_Y =
+        1944106706983026652585956338924642205364678199900525880719303040716906563914;
+    uint256 public constant IC3_X =
+        10412137030402594806069269754372005898547149110039101859740060062068298401525;
+    uint256 public constant IC3_Y =
+        2318352777808435867033915319132429737418827641818672954751739624333570255234;
 
     /// @dev memory pointer sizes
     uint16 public constant P_PUBLIC_SIGNALS_ACCUMULATOR_SIZE = 128;
@@ -56,7 +64,7 @@ contract SimpleRegistrarCircuitGroth16Verifier {
         uint256[2] memory pointA_,
         uint256[2][2] memory pointB_,
         uint256[2] memory pointC_,
-        uint256[1] memory publicSignals_
+        uint256[3] memory publicSignals_
     ) public view returns (bool verified_) {
         assembly {
             function checkField(signal_) -> res_ {
@@ -92,6 +100,12 @@ contract SimpleRegistrarCircuitGroth16Verifier {
 
                 /// @dev compute the linear combination of public signals
                 if iszero(g1MulAdd(pointer_, IC1_X, IC1_Y, mload(add(pubSignals_, 0)))) {
+                    leave
+                }
+                if iszero(g1MulAdd(pointer_, IC2_X, IC2_Y, mload(add(pubSignals_, 32)))) {
+                    leave
+                }
+                if iszero(g1MulAdd(pointer_, IC3_X, IC3_Y, mload(add(pubSignals_, 64)))) {
                     leave
                 }
 
@@ -148,6 +162,8 @@ contract SimpleRegistrarCircuitGroth16Verifier {
             /// @dev check that all public signals are in F
             verified_ := 1
             verified_ := and(verified_, checkField(mload(add(publicSignals_, 0))))
+            verified_ := and(verified_, checkField(mload(add(publicSignals_, 32))))
+            verified_ := and(verified_, checkField(mload(add(publicSignals_, 64))))
 
             /// @dev check pairings
             if not(iszero(verified_)) {
